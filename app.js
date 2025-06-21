@@ -5,14 +5,19 @@ const jwt = require("jsonwebtoken");
 
 app.use(express.json());
 
-app.get("/notes", (req, res) => {
-  const authHeader = req.headers.authorization;
+const users = []; // Memory for Users
 
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+// R E G I S T E R  R O U T E
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+});
 
-  const token = authHeader.split(" ")[1];
+// L O G I N  R O U T E
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find((u) => u.username === username);
+
+  if (!user) return res.status(400).json({ message: "Invalid Credentials" });
 });
 
 app.listen(3000, () => {
