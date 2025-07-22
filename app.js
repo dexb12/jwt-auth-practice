@@ -12,6 +12,13 @@ const users = []; // Memory for Users
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
+  //check if user already exists
+  const existingUser = users.find((u) => {
+    return u.username === username;
+  });
+  if (existingUser)
+    return res.status(400).json({ message: "User already exist" });
+
   const hashedPassword = await bcrypt.hash(password, 10);
   users.push({ username, password: hashedPassword });
   console.log(username, hashedPassword);
@@ -40,7 +47,7 @@ app.post("/login", async (req, res) => {
 
 // Middleware to protect routes
 function authenticateToken(req, res, next) {
-  const authHeader = req.header["authorization"];
+  const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
 
@@ -50,6 +57,12 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+app.get("/protected", authenticateToken, (req, res) => {
+  res.json({
+    message: `Hello, ${req.user.username}! This is a protected route.`,
+  });
+});
 
 app.listen(3000, () => {
   console.log("Sever is running on port", 3000);
